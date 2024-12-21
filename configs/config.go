@@ -23,6 +23,6 @@ func LoadConfig() *Config {
 	return &Config{
 		Db: DbConfig{
 			Dsn: os.Getenv("DSN"),
-		}
+		},
 	}
 }
