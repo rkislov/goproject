@@ -1,12 +1,11 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"go/adv-demo/configs"
-	"go/adv-demo/pkg/res"
+	"go/adv-demo/pkg/res/req"
+	"go/adv-demo/pkg/res/res"
 	"net/http"
-	"regexp"
 )
 
 type AuthHandlerDeps struct {
@@ -26,28 +25,11 @@ func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 
 func (handler *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(handler.Config.Auth.Secret)
-		fmt.Println("login")
-		var payload LoginRequest
-		err := json.NewDecoder(r.Body).Decode(&payload)
+		body, err := req.HandleBody[LoginRequest](&w, r)
 		if err != nil {
-			res.Json(w, err.Error(), 402)
 			return
 		}
-		fmt.Println(payload)
-		if payload.Email == "" {
-			res.Json(w, "Email required", 402)
-			return
-		}
-		req, _ := regexp.Compile(`[A-Za-z0-9\._%+\-]+@[A-Za-z0-9\.\-]+\.[A-Za-z]{2,}`)
-		if !req.MatchString(payload.Email) {
-			res.Json(w, "Email invalid", 402)
-			return
-		}
-		if payload.Password == "" {
-			res.Json(w, "Password required", 402)
-			return
-		}
+		fmt.Println(body)
 		data := LoginResponse{
 			Token: "123",
 		}
@@ -57,6 +39,10 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 
 func (handler *AuthHandler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("register")
+		body, err := req.HandleBody[RegisterRequest](&w, r)
+		if err != nil {
+			return
+		}
+		fmt.Println(body)
 	}
 }
